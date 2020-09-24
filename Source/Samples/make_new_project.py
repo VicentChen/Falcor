@@ -28,9 +28,9 @@ def create_project(name):
         print(f'Writing {dst_file}.')
 
         # Replace all occurrences 'ProjectTemplate' with new project name.
-        content = src_file.read_text()
+        content = src_file.read_text(encoding="utf-8")
         content = content.replace(TEMPLATE_NAME, name)
-        dst_file.write_text(content)
+        dst_file.write_text(content,encoding="utf-8")
 
     return True
 
