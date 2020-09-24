@@ -963,7 +963,7 @@ namespace Falcor
             mDirectory = fullpath.substr(0, last);
 
             // create the DOM
-            mJDoc.ParseStream(JStream);
+            mJDoc.ParseStream<rapidjson::kParseCommentsFlag>(JStream);
 
             if (mJDoc.HasParseError())
             {
