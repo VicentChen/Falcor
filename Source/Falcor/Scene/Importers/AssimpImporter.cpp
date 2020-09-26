@@ -407,7 +407,7 @@ namespace Falcor
             texCrds.resize(count);
             for (uint32_t i = 0; i < count; i++)
             {
-                assert(pAiTexCrd[i].z == 0);
+                // assert(pAiTexCrd[i].z == 0); // Why assert this?
                 texCrds[i] = float2(pAiTexCrd[i].x, pAiTexCrd[i].y);
             }
         }
