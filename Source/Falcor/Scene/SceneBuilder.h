@@ -307,7 +307,7 @@ namespace Falcor
         float mCameraSpeed = 1.0f;
 
         uint32_t addMaterial(const Material::SharedPtr& pMaterial, bool removeDuplicate);
-        Vao::SharedPtr createVao(uint16_t drawCount);
+        Vao::SharedPtr createVao(uint32_t drawCount);
 
         uint32_t createMeshData(Scene* pScene);
         void createGlobalMatricesBuffer(Scene* pScene);

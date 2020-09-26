@@ -487,7 +487,7 @@ namespace Falcor
         }
     }
 
-    Vao::SharedPtr SceneBuilder::createVao(uint16_t drawCount)
+    Vao::SharedPtr SceneBuilder::createVao(uint32_t drawCount)
     {
         for (auto& mesh : mMeshes) assert(mesh.topology == mMeshes[0].topology);
         const size_t vertexCount = (uint32_t)mBuffersData.staticData.size();
@@ -512,9 +512,9 @@ namespace Falcor
         Vao::BufferVec pVBs(Scene::kVertexBufferCount);
         pVBs[Scene::kStaticDataBufferIndex] = pStaticBuffer;
         pVBs[Scene::kPrevVertexBufferIndex] = pPrevBuffer;
-        std::vector<uint16_t> drawIDs(drawCount);
+        std::vector<uint32_t> drawIDs(drawCount);
         for (uint32_t i = 0; i < drawCount; i++) drawIDs[i] = i;
-        pVBs[Scene::kDrawIdBufferIndex] = Buffer::create(drawCount * sizeof(uint16_t), ResourceBindFlags::Vertex, Buffer::CpuAccess::None, drawIDs.data());
+        pVBs[Scene::kDrawIdBufferIndex] = Buffer::create(drawCount * sizeof(uint32_t), ResourceBindFlags::Vertex, Buffer::CpuAccess::None, drawIDs.data());
 
         // The layout only initializes the vertex data and draw ID layout. The skinning data doesn't get passed into the vertex shader.
         VertexLayout::SharedPtr pLayout = VertexLayout::create();
@@ -533,7 +533,7 @@ namespace Falcor
 
         // Add the draw ID layout
         VertexBufferLayout::SharedPtr pInstLayout = VertexBufferLayout::create();
-        pInstLayout->addElement(INSTANCE_DRAW_ID_NAME, 0, ResourceFormat::R16Uint, 1, INSTANCE_DRAW_ID_LOC);
+        pInstLayout->addElement(INSTANCE_DRAW_ID_NAME, 0, ResourceFormat::R32Uint, 1, INSTANCE_DRAW_ID_LOC);
         pInstLayout->setInputClass(VertexBufferLayout::InputClass::PerInstanceData, 1);
         pLayout->addBufferLayout(Scene::kDrawIdBufferIndex, pInstLayout);
 
@@ -632,7 +632,7 @@ namespace Falcor
 
         createGlobalMatricesBuffer(mpScene.get());
         uint32_t drawCount = createMeshData(mpScene.get());
-        assert(drawCount <= std::numeric_limits<uint16_t>::max());
+        assert(drawCount <= std::numeric_limits<uint32_t>::max()); // FIXME: it should be: 1 << kMatrixBits
         mpScene->mpVao = createVao(drawCount);
         calculateMeshBoundingBoxes(mpScene.get());
         createAnimationController(mpScene.get());

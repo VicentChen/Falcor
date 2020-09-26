@@ -81,8 +81,8 @@ struct PackedMeshInstanceData
 
     // Packed representation
 
-    static const uint kMatrixBits = 16;
-    static const uint kMeshBits = 15;
+    static const uint kMatrixBits = 20;
+    static const uint kMeshBits = 11;
     static const uint kFlagsBits = 1;
 
     static const uint kMatrixOffset = 0;
