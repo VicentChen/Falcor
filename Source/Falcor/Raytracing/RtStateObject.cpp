@@ -85,7 +85,7 @@ namespace Falcor
                     const std::wstring& ahsExport = pAhs ? string_2_wstring(pAhs->getEntryPoint()) : L"";
                     const std::wstring& chsExport = pChs ? string_2_wstring(pChs->getEntryPoint()) : L"";
 
-                    rtsoHelper.addHitProgramDesc(pAhsBlob, ahsExport, pChsBlob, chsExport, pIntersectionBlob, intersectionExport, exportName);
+                    rtsoHelper.addHitProgramDesc(pAhsBlob, ahsExport, pChsBlob, chsExport, pIntersectionBlob, intersectionExport, desc.mHitGroupType, exportName);
 
                     if (intersectionExport.size())
                     {

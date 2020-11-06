@@ -56,10 +56,15 @@ namespace Falcor
             */
             void setMaxTraceRecursionDepth(uint32_t maxDepth) { mMaxTraceRecursionDepth = maxDepth; }
 
+            /** Set the hit group type
+            */
+            void setHitGroupType(D3D12_HIT_GROUP_TYPE type) { mHitGroupType = type; }
+
             std::vector<GroupInfo> mRayGenEntryPoints;
             std::vector<GroupInfo> mMissEntryPoints;
             std::vector<GroupInfo> mHitGroups;
             uint32_t mMaxTraceRecursionDepth = 1;
+            D3D12_HIT_GROUP_TYPE mHitGroupType = D3D12_HIT_GROUP_TYPE_TRIANGLES;
         };
 
         class dlldecl Desc : public DescExtra
@@ -72,7 +77,7 @@ namespace Falcor
             Desc& setRayGen(const std::string& raygen);
             Desc& addRayGen(const std::string& raygen);
             Desc& addMiss(uint32_t missIndex, const std::string& miss);
-            Desc& addHitGroup(uint32_t hitIndex, const std::string& closestHit, const std::string& anyHit = "", const std::string& intersection = "");
+            Desc& addHitGroup(uint32_t hitIndex, const std::string& closestHit, const std::string& anyHit = "", const std::string& intersection = "", D3D12_HIT_GROUP_TYPE type = D3D12_HIT_GROUP_TYPE_TRIANGLES);
             Desc& addDefine(const std::string& define, const std::string& value);
             Desc& addDefines(const DefineList& defines);
 

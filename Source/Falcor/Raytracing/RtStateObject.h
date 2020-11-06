@@ -44,12 +44,14 @@ namespace Falcor
 
             // TODO(tfoley): this is redundant with the kernels
             Desc& setGlobalRootSignature(const RootSignature::SharedPtr& pRootSig) { mpGlobalRootSignature = pRootSig; return *this; }
+            Desc& setHitGroupType(D3D12_HIT_GROUP_TYPE type) { mHitGroupType = type; return *this; }
             bool operator==(const Desc& other) const;
 
         private:
             ProgramKernels::SharedConstPtr mpKernels;
             RootSignature::SharedPtr mpGlobalRootSignature;
             uint32_t mMaxTraceRecursionDepth = 1;
+            D3D12_HIT_GROUP_TYPE mHitGroupType = D3D12_HIT_GROUP_TYPE_TRIANGLES;
             friend RtStateObject;
         };
 

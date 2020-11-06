@@ -50,9 +50,9 @@ namespace Falcor
             mDirty = true;
         }
 
-        void addHitProgramDesc(ID3DBlobPtr pAhsBlob, const std::wstring& ahsExportName, ID3DBlobPtr pChsBlob, const std::wstring& chsExportName, ID3DBlobPtr pIntersectionBlob, const std::wstring& intersectionExportName, const std::wstring& name)
+        void addHitProgramDesc(ID3DBlobPtr pAhsBlob, const std::wstring& ahsExportName, ID3DBlobPtr pChsBlob, const std::wstring& chsExportName, ID3DBlobPtr pIntersectionBlob, const std::wstring& intersectionExportName, D3D12_HIT_GROUP_TYPE hitGroupType, const std::wstring& name)
         {
-            addSubobject<HitProgramDesc>(pAhsBlob, ahsExportName, pChsBlob, chsExportName, pIntersectionBlob, intersectionExportName, name);
+            addSubobject<HitProgramDesc>(pAhsBlob, ahsExportName, pChsBlob, chsExportName, pIntersectionBlob, intersectionExportName, hitGroupType, name);
             mDirty = true;
         }
 
@@ -160,6 +160,7 @@ namespace Falcor
                 ID3DBlobPtr pAhsBlob, const std::wstring& ahsExportName,
                 ID3DBlobPtr pChsBlob, const std::wstring& chsExportName,
                 ID3DBlobPtr pIntersectionBlob, const std::wstring& intersectionExportName,
+                D3D12_HIT_GROUP_TYPE hitGroupType,
                 const std::wstring& name) :
                 anyHitShader(pAhsBlob, ahsExportName),
                 closestHitShader(pChsBlob, chsExportName),
@@ -170,6 +171,7 @@ namespace Falcor
                 desc.AnyHitShaderImport = pAhsBlob ? anyHitShader.exportName.c_str() : nullptr;
                 desc.ClosestHitShaderImport = pChsBlob ? closestHitShader.exportName.c_str() : nullptr;
                 desc.HitGroupExport = exportName.c_str();
+                desc.Type = hitGroupType;
 
                 subobject.Type = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
                 subobject.pDesc = &desc;

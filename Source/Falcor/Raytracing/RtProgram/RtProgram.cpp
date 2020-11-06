@@ -80,7 +80,7 @@ namespace Falcor
         return *this;
     }
 
-    RtProgram::Desc& RtProgram::Desc::addHitGroup(uint32_t hitIndex, const std::string& closestHit, const std::string& anyHit, const std::string& intersection /* = "" */)
+    RtProgram::Desc& RtProgram::Desc::addHitGroup(uint32_t hitIndex, const std::string& closestHit, const std::string& anyHit, const std::string& intersection /* = "" */, D3D12_HIT_GROUP_TYPE type /* = D3D12_HIT_GROUP_TYPE_TRIANGLES */)
     {
         if(hitIndex >= mHitGroups.size())
         {
@@ -105,6 +105,8 @@ namespace Falcor
         {
             mBaseDesc.entryPoint(ShaderType::Intersection, intersection);
         }
+
+        mHitGroupType = type;
 
         DescExtra::GroupInfo info = { mBaseDesc.mActiveGroup };
         mHitGroups[hitIndex] = info;
