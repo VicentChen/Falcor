@@ -47,6 +47,13 @@ namespace Falcor
         */
         static SharedPtr create(const RtProgram::SharedPtr& pProgram, const Scene::SharedPtr& pScene);
 
+        /** Create a new ray tracing vars object.
+            \param[in] pProgram The ray tracing program.
+            \param[in] pProceduralScene The scene.
+            \return A new object, or an exception is thrown if creation failed.
+        */
+        static SharedPtr create(const RtProgram::SharedPtr& pProgram, const ProceduralScene::SharedPtr& pProceduralScene);
+
         const EntryPointGroupVars::SharedPtr& getRayGenVars(uint32_t index = 0) { return mRayGenVars[index].pVars; }
         const EntryPointGroupVars::SharedPtr& getMissVars(uint32_t rayID) { return mMissVars[rayID].pVars; }
         const EntryPointGroupVars::SharedPtr& getHitVars(uint32_t rayID, uint32_t meshID) { return mHitVars[meshID * mDescHitGroupCount + rayID].pVars; }
@@ -76,10 +83,20 @@ namespace Falcor
             const RtProgram::SharedPtr& pProgram,
             const Scene::SharedPtr& pScene);
 
+        RtProgramVars(
+            const RtProgram::SharedPtr& pProgram,
+            const ProceduralScene::SharedPtr& pProceduralScene);
+
         void init();
         bool applyVarsToTable(ShaderTable::SubTableType type, uint32_t tableOffset, VarsVector& varsVec, const RtStateObject* pRtso);
 
-        Scene::SharedPtr mpScene;
+        struct SceneInfo
+        {
+            uint meshCount = 0;
+            uint instanceCount = 0;
+        };
+        SceneInfo mSceneInfo = {};
+ 
         uint32_t mDescHitGroupCount = 0;
         mutable ShaderTable::SharedPtr mpShaderTable;
 

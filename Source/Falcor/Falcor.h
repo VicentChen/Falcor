@@ -107,6 +107,7 @@
 
 // Scene
 #include "Scene/Scene.h"
+#include "Scene/ProceduralScene.h"
 #include "Scene/Importer.h"
 #include "Scene/Camera/Camera.h"
 #include "Scene/Camera/CameraController.h"

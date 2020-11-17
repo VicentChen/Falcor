@@ -48,13 +48,24 @@ namespace Falcor
     
     RtProgramVars::RtProgramVars(const RtProgram::SharedPtr& pProgram, const Scene::SharedPtr& pScene)
         : ProgramVars(pProgram->getReflector())
-        , mpScene(pScene)
     {
         if (checkParams(pProgram, pScene) == false)
         {
             throw std::exception("Failed to create RtProgramVars object");
         }
         mpRtVarsHelper = RtVarsContext::create();
+        mSceneInfo.meshCount = pScene->getMeshCount();
+        assert(mpRtVarsHelper);
+        init();
+    }
+
+    RtProgramVars::RtProgramVars(const RtProgram::SharedPtr& pProgram, const ProceduralScene::SharedPtr& pProceduralScene)
+        :ProgramVars(pProgram->getReflector())
+    {
+        // TODO: check parameters
+        mpRtVarsHelper = RtVarsContext::create();
+        mSceneInfo.meshCount = pProceduralScene->getMeshCount();
+        mSceneInfo.instanceCount = pProceduralScene->getInstanceCount();
         assert(mpRtVarsHelper);
         init();
     }
@@ -62,6 +73,11 @@ namespace Falcor
     RtProgramVars::SharedPtr RtProgramVars::create(const RtProgram::SharedPtr& pProgram, const Scene::SharedPtr& pScene)
     {
         return SharedPtr(new RtProgramVars(pProgram, pScene));
+    }
+
+    RtProgramVars::SharedPtr RtProgramVars::create(const RtProgram::SharedPtr& pProgram, const ProceduralScene::SharedPtr& pProceduralScene)
+    {
+        return SharedPtr(new RtProgramVars(pProgram, pProceduralScene));
     }
 
     void RtProgramVars::init()
@@ -98,7 +114,7 @@ namespace Falcor
         // space for the hit group parameter blocks.
         //
         uint32_t descHitGroupCount = uint32_t(descExtra.mHitGroups.size());
-        uint32_t blockCountPerHitGroup = mpScene->getMeshCount();
+        uint32_t blockCountPerHitGroup = mSceneInfo.meshCount;
 
         uint32_t totalHitBlockCount = descHitGroupCount * blockCountPerHitGroup;
 
