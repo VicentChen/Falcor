@@ -138,9 +138,9 @@ namespace Falcor
         return pBuilder->import(filename, instances) ? pBuilder : nullptr;
     }
 
-    bool SceneBuilder::import(const std::string& filename, const InstanceMatrices& instances, const Dictionary& dict)
+    bool SceneBuilder::import(const std::string& filename, const InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)
     {
-        bool success = Importer::import(filename, *this, instances, dict);
+        bool success = Importer::import(filename, *this, instances, dict, extraMaterials);
         mFilename = filename;
         return success;
     }

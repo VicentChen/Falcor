@@ -170,9 +170,11 @@ namespace Falcor
         /** Import a scene/model file
             \param filename The filename to load
             \param instances A list of instance matrices to load. This is optional, by default a single instance will be load
+            \param dict Optional dictionary.
+            \param extraMaterials Extra materials for meshes.
             \return true if the import succeeded, otherwise false
         */
-        bool import(const std::string& filename, const InstanceMatrices& instances = InstanceMatrices(), const Dictionary& dict = Dictionary());
+        bool import(const std::string& filename, const InstanceMatrices& instances = InstanceMatrices(), const Dictionary& dict = Dictionary(), const std::vector<Dictionary>& extraMaterials = {});
 
         /** Get the scene. Make sure to add all the objects before calling this function
             \return nullptr if something went wrong, otherwise a new Scene object

@@ -120,7 +120,7 @@ namespace Falcor
         }
     }
 
-    bool PythonImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict)
+    bool PythonImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)
     {
         if (!instances.empty()) logWarning("Python importer does not support instancing.");
 

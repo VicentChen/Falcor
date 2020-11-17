@@ -38,7 +38,7 @@ namespace Falcor
     {
     public:
         using ExtensionList = std::vector<std::string>;
-        using ImportFunction = std::function<bool(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict)>;
+        using ImportFunction = std::function<bool(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)>;
 
         /** Description of an importer.
         */
@@ -58,9 +58,10 @@ namespace Falcor
             \param[in] builder Scene builder.
             \param[in] instances Optional list of instance transforms.
             \param[in] dict Optional dictionary.
+            \param[in] extraMaterials Extra materials for meshes.
             \return True if asset was successfully imported, false otherwise.
         */
-        static bool import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict);
+        static bool import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials);
 
         /** Registers an importer.
             \param[in] desc Importer description.

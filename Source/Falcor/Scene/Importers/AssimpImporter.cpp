@@ -40,6 +40,18 @@ namespace Falcor
 {
     namespace
     {
+        namespace MaterialKeys
+        {
+            const std::string kMaterials = "materials";
+            const std::string kTargetMesh = "target_mesh";
+            const std::string kAmbient = "ambient";
+            const std::string kDiffuse = "diffuse";
+            const std::string kSpecular = "specular";
+            const std::string kEmissive = "emissive";
+            const std::string kNsNiD = "ns_ni_d";
+            const std::string kAllMesh = "";
+        }
+
         // Global camera animation interpolation and warping configuration.
         // Assimp does not provide enough information to determine this from data.
         static const Animation::InterpolationMode kCameraInterpolationMode = Animation::InterpolationMode::Linear;
@@ -139,6 +151,7 @@ namespace Falcor
 
             SceneBuilder& builder;
             std::map<uint32_t, Material::SharedPtr> materialMap;
+            std::map<std::string, Material::SharedPtr> extraMaterialMap;
             std::map<uint32_t, uint32_t> meshMap; // Assimp mesh index to Falcor mesh ID
             std::map<const std::string, Texture::SharedPtr> textureCache;
             const SceneBuilder::InstanceMatrices& modelInstances;
@@ -584,6 +597,8 @@ namespace Falcor
                 }
 
                 mesh.pMaterial = data.materialMap.at(pAiMesh->mMaterialIndex);
+                if (data.extraMaterialMap.find(MaterialKeys::kAllMesh) != data.extraMaterialMap.end()) mesh.pMaterial = data.extraMaterialMap[MaterialKeys::kAllMesh];
+                if (data.extraMaterialMap.find(mesh.name) != data.extraMaterialMap.end()) mesh.pMaterial = data.extraMaterialMap[mesh.name];
                 assert(mesh.pMaterial);
                 uint32_t meshID = data.builder.addMesh(mesh);
                 data.meshMap[i] = meshID;
@@ -930,6 +945,42 @@ namespace Falcor
             return true;
         }
 
+        void createExtraMaterials(ImporterData& data, const std::vector<Dictionary>& extraMaterial)
+        {
+            for (const auto& materialSpec : extraMaterial)
+            {
+                std::string targetMesh = MaterialKeys::kAllMesh;
+                float4 diffuse(0, 0, 0, 1);
+                float4 specular(0, 0, 0, 1);
+                float3 emissive(0, 0, 0);
+                float3 NsNiD(1, 1, 1);
+
+                if (materialSpec.keyExists(MaterialKeys::kTargetMesh)) targetMesh = static_cast<const std::string&>(materialSpec[MaterialKeys::kTargetMesh]);
+                if (materialSpec.keyExists(MaterialKeys::kDiffuse)) diffuse.xyz = static_cast<float3>(materialSpec[MaterialKeys::kDiffuse]);
+                if (materialSpec.keyExists(MaterialKeys::kSpecular)) specular.xyz = static_cast<float3>(materialSpec[MaterialKeys::kSpecular]);
+                if (materialSpec.keyExists(MaterialKeys::kEmissive)) emissive = static_cast<float3>(materialSpec[MaterialKeys::kEmissive]);
+                if (materialSpec.keyExists(MaterialKeys::kNsNiD)) NsNiD = static_cast<float3>(materialSpec[MaterialKeys::kNsNiD]);
+
+                diffuse.w = NsNiD.z;
+                specular.w = 1.f - convertSpecPowerToRoughness(NsNiD.x);
+
+                Material::SharedPtr pMaterial = Material::create("[ExtraMaterial]" + targetMesh);
+                pMaterial->setBaseColor(diffuse);
+                pMaterial->setSpecularParams(specular);
+                pMaterial->setEmissiveColor(emissive);
+                pMaterial->setIndexOfRefraction(NsNiD.y);
+
+                // Use scalar opacity value for controlling specular transmission
+                // TODO: Remove this workaround when we have a better way to define materials.
+                if (NsNiD.z < 1.f)
+                {
+                    pMaterial->setSpecularTransmission(1.f - NsNiD.z);
+                    pMaterial->setDoubleSided(true);
+                }
+                data.extraMaterialMap[targetMesh] = pMaterial;
+            }
+        }
+
         BoneMeshMap createBoneMap(const aiScene* pScene)
         {
             BoneMeshMap boneMap;
@@ -1012,7 +1063,7 @@ namespace Falcor
         }
     }
 
-    bool AssimpImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict)
+    bool AssimpImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)
     {
         TimeReport timeReport;
 
@@ -1075,6 +1126,9 @@ namespace Falcor
             return false;
         }
         timeReport.measure("Creating materials");
+
+        createExtraMaterials(data, extraMaterials);
+        timeReport.measure("Creating extra materials");
 
         if (createSceneGraph(data) == false)
         {

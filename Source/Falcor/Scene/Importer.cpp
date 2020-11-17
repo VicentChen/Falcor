@@ -42,7 +42,7 @@ namespace Falcor
         return sFileExtensionsFilters;
     }
 
-    bool Importer::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict)
+    bool Importer::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)
     {
         auto ext = getExtensionFromFile(filename);
         auto it = sImportFunctions.find(ext);
@@ -51,7 +51,7 @@ namespace Falcor
             logError("Error when loading '" + filename + "'. Unknown file extension.");
             return false;
         }
-        return it->second(filename, builder, instances, dict);
+        return it->second(filename, builder, instances, dict, extraMaterials);
     }
 
     void Importer::registerImporter(const Desc& desc)

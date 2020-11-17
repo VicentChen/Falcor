@@ -33,7 +33,7 @@ namespace Falcor
     class PythonImporter
     {
     public:
-        static bool import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict);
+        static bool import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials);
     private:
         PythonImporter() = default;
     };

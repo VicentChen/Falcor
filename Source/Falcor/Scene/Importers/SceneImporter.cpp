@@ -99,6 +99,15 @@ namespace Falcor
         static const char* kLight = "light";
         static const char* kCamera = "camera";
 
+        static const char* kMaterials = "materials";
+        static const char* kTargetMesh = "target_mesh";
+        static const char* kAmbient = "ambient";
+        static const char* kDiffuse = "diffuse";
+        static const char* kSpecular = "specular";
+        static const char* kEmissive = "emissive";
+        static const char* kNsNiD = "ns_ni_d";
+        static const std::string kAllMesh = "";
+
         static const char* kMaterial = "material";
         static const char* kShadingModel = "shading_model";
         static const char* kShadingSpecGloss = "spec_gloss";
@@ -292,21 +301,38 @@ namespace Falcor
         }
 
         // Parse additional properties that affect loading
+        std::vector<Dictionary> materials;
         SceneBuilder::Flags buildFlags = mBuilder.getFlags();
-        if (jsonModel.HasMember(SceneKeys::kMaterial))
+        if (jsonModel.HasMember(SceneKeys::kMaterials))
         {
-            const auto& materialSettings = jsonModel[SceneKeys::kMaterial];
-            if (materialSettings.IsObject() == false)
+            const auto& materialSettings = jsonModel[SceneKeys::kMaterials];
+            if (materialSettings.IsArray() == false)
             {
-                return error("Material properties for '" + file + "' must be a JSON object");
+                return error("Material properties for '" + file + "' must be a JSON array");
             }
 
-            for (auto m = materialSettings.MemberBegin(); m != materialSettings.MemberEnd(); m++)
+            for (uint32_t i = 0; i < materialSettings.Size(); i++)
             {
-                if (m->name == SceneKeys::kShadingModel)
+                Dictionary materialDict = {};
+                materialDict[SceneKeys::kTargetMesh] = SceneKeys::kAllMesh;
+                const auto& attributeSettings = materialSettings[i];
+                for (auto attr = attributeSettings.MemberBegin(); attr != attributeSettings.MemberEnd(); attr++)
                 {
-                    logWarning("Model material key '" + std::string(SceneKeys::kShadingModel) + "' is not supported. Use the scene build flags.");
+                    std::string attrName(attr->name.GetString());
+                    if (attrName == SceneKeys::kTargetMesh) materialDict[attrName] = attr->value.GetString();
+                    else
+                    {
+                        float3 f;
+                        if (attrName == SceneKeys::kAmbient) getFloatVec<3>(attr->value, SceneKeys::kAmbient, &f[0]);
+                        else if (attrName == SceneKeys::kDiffuse) getFloatVec<3>(attr->value, SceneKeys::kDiffuse, &f[0]);
+                        else if (attrName == SceneKeys::kSpecular) getFloatVec<3>(attr->value, SceneKeys::kSpecular, &f[0]);
+                        else if (attrName == SceneKeys::kEmissive) getFloatVec<3>(attr->value, SceneKeys::kEmissive, &f[0]);
+                        else if (attrName == SceneKeys::kNsNiD) getFloatVec<3>(attr->value, SceneKeys::kNsNiD, &f[0]);
+                        else return error("Material key '" + attrName + "' is not supported");
+                        materialDict[attrName] = f;
+                    }
                 }
+                materials.emplace_back(materialDict);
             }
         }
 
@@ -1184,7 +1210,7 @@ namespace Falcor
         return true;
     }
 
-    bool SceneImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict)
+    bool SceneImporter::import(const std::string& filename, SceneBuilder& builder, const SceneBuilder::InstanceMatrices& instances, const Dictionary& dict, const std::vector<Dictionary>& extraMaterials)
     {
         logWarning("fscene files are no longer supported in Falcor 4.0. Some properties may not be loaded.");
         if (!instances.empty()) logWarning("Scene importer does not support instancing.");
