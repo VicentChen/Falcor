@@ -356,6 +356,7 @@ namespace Falcor
             mData.baseColor = color;
             markUpdates(UpdateFlags::DataChanged);
             updateBaseColorType();
+            setAlphaMode(AlphaModeMask);
         }
     }
 
